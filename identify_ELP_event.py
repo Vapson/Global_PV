@@ -2,22 +2,17 @@
 """
 Created on Sat Aug 13 17:30:16 2022
 
-@author: wangx
+@author: wang
 """
 import os
-os.chdir(r'G:\global_photovoltatic')
-
-
 import numpy as np
 import pandas as pd
 import datetime
 import xarray as xr
 
 
-# In[event without backup energy]
-
-def main_0():
- 
+# In[----------- event without backup energy -----------]
+def main_0(): 
     for year in range(1986, 2022):
         file_path = r'G:\global_photovoltatic\daily_power_by_ERA5_pvlib'
         file_name = 'power_daily_' + str(year) + '.nc'
@@ -37,13 +32,11 @@ def main_0():
         
         
         # read threshold
-        thresholds = xr.open_dataset(r'G:\global_photovoltatic\threshold\threshold2.nc')
-        
+        thresholds = xr.open_dataset(r'G:\global_photovoltatic\threshold\threshold2.nc')        
         
         threshold = thresholds.sel(thrs='10th')['__xarray_dataarray_variable__'].values
         threshold1 = thresholds.sel(thrs='5th')['__xarray_dataarray_variable__'].values
-        threshold2 = thresholds.sel(thrs='1th')['__xarray_dataarray_variable__'].values
-        
+        threshold2 = thresholds.sel(thrs='1th')['__xarray_dataarray_variable__'].values        
     
         power = daily_data.values
         judge = np.where((power<threshold)|(power<0), 1, 0)
@@ -68,8 +61,7 @@ def main_0():
 
 
 
-# In[event with backup energy]
-
+# In[----------- event with backup energy -----------]
 from scipy.sparse import coo_matrix
 def reconstruct_2d_array(index_value_pairs, num_rows, num_cols):
     rows, cols, values = zip(*index_value_pairs)
@@ -77,8 +69,7 @@ def reconstruct_2d_array(index_value_pairs, num_rows, num_cols):
     
 
 import calendar
-def get_annual_mean_potential():
-    
+def get_annual_mean_potential():    
     yearly_data = np.full((36, 600, 1440), np.nan, dtype=np.float32)
     
     for year in range(1986, 2022):  
@@ -121,8 +112,7 @@ def get_backup_level():
         df['diff'] = df['thrs_10th'] - df['power']
         cum_loss = df.groupby(['lon_index', 'lat_index']).sum()[['diff', 'thrs_10th']].reset_index()
         num_days = df.groupby(['lon_index', 'lat_index']).count()['doy'].reset_index()
-        cum_loss = cum_loss.merge(num_days, on = ['lon_index', 'lat_index'])
- 
+        cum_loss = cum_loss.merge(num_days, on = ['lon_index', 'lat_index']) 
         
         if year == 1986:
             cum_diff = cum_loss.copy()
